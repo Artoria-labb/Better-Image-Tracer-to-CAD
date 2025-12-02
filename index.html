@@ -3,29 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Full Plan Tracer → DXF Export</title>
+  <title>Plan Tracer — Engineering Precision (Centerline)</title>
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Load OpenCV from CDN -->
+  <!-- IMPORTANT: set Module BEFORE opencv.js so onRuntimeInitialized fires -->
+  <script>
+    window.OPENCV_READY = false;
+    window.Module = {
+      onRuntimeInitialized: function () {
+        console.log("OpenCV runtime initialized.");
+        window.OPENCV_READY = true;
+        if (window.onOpenCvReady) window.onOpenCvReady();
+      }
+    };
+  </script>
+
+  <!-- OpenCV.js (use hosted official) -->
   <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
 
-  <!-- Main logic -->
+  <!-- App logic -->
   <script defer src="script.js"></script>
 </head>
 <body>
   <header>
-    <h1>Full Plan Tracer → DXF Export</h1>
-    <p>Upload any GA PDF / scanned drawing — trace all visible lines and export to DXF.</p>
+    <h1>Plan Tracer — Engineering Precision</h1>
+    <p>Centerline extraction → Hough line detection → Clean CAD lines → Export DXF</p>
   </header>
 
   <main>
     <section class="controls-row">
       <label>File: <input id="fileInput" type="file" accept="image/*,.pdf"></label>
       <label>Scale (meters per pixel): <input id="scaleInput" type="number" value="0.01" step="0.001"></label>
-      <button id="traceBtn">Trace All</button>
+      <button id="traceBtn">Trace (Centerline)</button>
       <button id="exportDxfBtn">Export .dxf</button>
       <button id="downloadPreviewPng">Download Preview PNG</button>
     </section>
@@ -37,12 +49,11 @@
       </div>
 
       <div class="canvas-card">
-        <div class="canvas-title">Trace Preview (vector overlay)</div>
+        <div class="canvas-title">Centerline & Lines Preview</div>
         <canvas id="overlayCanvas" class="preview"></canvas>
       </div>
     </section>
 
-    <!-- 🌟 PROGRESS LOG HERE -->
     <section class="log-panel">
       <h3>Progress Log</h3>
       <pre id="log"></pre>
